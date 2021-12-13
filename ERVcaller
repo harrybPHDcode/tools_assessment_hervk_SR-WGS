@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# job name
+#SBATCH --job-name=ervcall
+
+# How much memory do you need **per core**?
+#SBATCH --mem-per-cpu=30G
+
+# time to run
+#SBATCH --time=0-96:00
+
+# Number of cores you need
+#SBATCH --ntasks=2
+
+# output name
+#SBATCH --output=/scratch/ervcaller/ERVcaller/ervcall.out
+
+module load apps/R/3.6.0
+
+perl /scratch/ervcaller/ERVcaller/ERVcaller_v1.4.pl -i LP6005878-DNA_A05 -f .bam -H hg19.fa -T /scratch/LTR5_Hs_new.fa -BWA_MEM \
+-O /scratch/ervcaller/ERVcaller/ -I /scratch/ervcaller/ERVcaller/
