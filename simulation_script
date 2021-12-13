@@ -15,28 +15,49 @@
 # output name
 #SBATCH --output=/scratch/simulated_data/simulation.out
 
+# convert the existing N bases in hg19.fa to X
 sed -i 's/N/X/g' /scratch/simulated_data/hg19.fa
+
+# mask the regions known to be HERV in hg19 as N
 bedtools maskfasta -fi /scratch/simulated_data/hg19.fa -bed pisano_masklist.bed -fo /scratch/simulated_data/hg19_pisano_masked.fa
-rm /users/k1893288/t_account/brc_scratch/t_scratch/simulated_data/hg19.fa
+
+# replace all of the N bases (locations where there is an insertion) with nothing
 sed -i 's/N//g' /scratch/simulated_data/hg19_pisano_masked.fa
+
+# convert the X bases back to N
 sed -i 's/X/N/g' hg19_pisano_masked.fa
+
+# normalize the fasta
 picard NormalizeFasta I=hg19_pisano_masked.fa O=hg19_pisano_masked_normalized.fa
 rm hg19_pisano_masked.fa
+
+# index the new fasta file
 bwa index -a bwtsw hg19_pisano_masked_normalized.fa
 
+# simulate a new fastq file based off of the original hg19 reference
 /scratch/simulated_data/dwgsim/DWGSIM/dwgsim -e 0.020 -E 0.020 -d 400 -s 5 -N 105000000 -1 100 -2 100 -o 1 /scratch/hg19.fa /scratch/simulated_data/0.020_400_5_105000000_100
-
-
 input=0.020_400_5_105000000_100
+
+# unzip the zipped fastq files (which were produced by DWGSIM during the simulation step above)
 gunzip $input.bwa.read1.fastq.gz
 rm $input.bwa.read1.fastq.gz
 gunzip $input.bwa.read2.fastq.gz
 rm $input.bwa.read2.fastq.gz
+
+# align the fastq files to the hg19 reference which is missing the HERV loci
 bwa mem -M -t 14 hg19_pisano_masked_normalized.fa $input.bwa.read1.fastq $input.bwa.read2.fastq > $input.sam
+
+# remove the fastq files
 rm $input.bwa.read1.fastq
 rm $input.bwa.read2.fastq
+
+# convert to bam
 samtools view -S -b $input.sam > $input.bam
 rm $input.sam
+
+# sort the reads by co-ordinate
 picard SortSam I=$input.bam O=$input.sorted.bam SORT_ORDER=coordinate
 rm $input.bam
+
+#index the final bam file
 samtools index $input.sorted.bam
