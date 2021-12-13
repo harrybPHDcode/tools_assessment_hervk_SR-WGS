@@ -1,0 +1,122 @@
+#!/bin/bash
+
+# job name
+#SBATCH --job-name=retroseq+
+
+# How much memory do you need **per core**?
+#SBATCH --mem-per-cpu=12G
+
+# time to run
+#SBATCH --time=0-12:00
+
+# Number of cores you need
+#SBATCH --ntasks=2
+
+# output name
+#SBATCH --output=/scratch/pipeline.out
+
+# specify locations for; generating a working temp directory, reference genome, reference ERV fasta, desired output directory, input bam file (variable=path) to call these paths later on in the script use $variable.
+tempdir=/mnt/lustre/tempdir/
+outdir=/mnt/lustre/results/
+ref_genome_fasta=/mnt/lustre/hg19.fa
+ERV_seq_ref_fasta=/mnt/lustre/eref_file
+
+# specify the input bam file
+input=/mnt/lustre/groups/herv_project/BAMs/LP6008118-DNA_D09.bam
+# extract the last part of the input path (xxx.bam) and save this as the 'uniqueID' variable, this will be used to label the temporary and output files for this input.
+uniqueID=${input##*/}
+# generate an input specific file in the temporary directory ($tempdir/label) so that we can easily access and store the intermediate files for this input.
+sample_tempdir=$tempdir$uniqueID
+
+# specify quality control criteria, see retroseq documentation for more information on what the numbers represent.
+retro_qual_control=[8]
+
+# decide whether or not to index bam keep intermediate files (extracted high quality fastas and associated contig sequences), 'False' = delete, 'True' = keep.
+keep_extracted_bams='False'
+keep_contigs='False'
+index_bam='False' # indexed bam is required for the pipeline, only set to false if the index file has already been generated.
+
+# make temp and output directories if needed (previously we had saved the file path strings as variables, now we actually make these paths into directories).
+# there will be a sperate output folder for retroseq discover, retroseq call and repeatmasker outputs.
+mkdir -p $sample_tempdir/
+mkdir -p $outdir/retrodiscover
+mkdir -p $outdir/retrocall
+mkdir -p $outdir/repeatmasker
+mkdir -p $sample_tempdir/repeatmasker
+
+# if you selected to index the bam file in the section above then this code will generate a bam index with samtools (NB the genomes we will be using come with
+# indexes and it is much faster just to copy them across along with the bam itself).
+if [ $index_bam == 'True' ];
+then
+samtools index -b LP6008118-DNA_A09.cram.bam
+fi
+
+# these two lines apply retroseq discover and call to the input file and store the results in the output folder.
+perl /users/k1893288/t_account/brc_scratch/t_scratch/retroseq/RetroSeq/bin/retroseq.pl -discover -bam $input -eref $ERV_seq_ref_fasta -align -output $outdir/retrodiscover/$uniqueID.bed
+perl /users/k1893288/t_account/brc_scratch/t_scratch/retroseq/RetroSeq/bin/retroseq.pl -call -bam $input -input $outdir/retrodiscover/$uniqueID.bed -ref $ref_genome_fasta -output ${outdir::-1}/retrocall/$uniqueID.vcf
+
+# this line extracts the loci identified by retroseq which have a quality score equal to those chosen above and saves them in a file in the retrocall output folder
+grep .*:.*:$retro_qual_control:* ${outdir::-1}/retrocall/$uniqueID.vcf > ${outdir::-1}/retrocall/$uniqueID.output
+
+# these two lines generate a file of genome locations that span 250 bp around the predicted insertion site.
+awk '{print $1 ":" $2-250 "-" $2+250}' ${outdir::-1}/retrocall/$uniqueID.output > ${outdir::-1}/retrocall/$uniqueID.output.hqualpositions
+echo 'done awk'
+# this line establishes the number of locis in the 250bp span file created above.
+linecount=$(wc -l ${outdir::-1}/retrocall/$uniqueID.output.hqualpositions | awk '{print $1}')
+
+# now, iterate through the span file in a for loop and from the input file extract the reads at these locations and store them in small bam files in tempdir
+start=1
+for ((i=$start;  i<=$linecount; i++))
+do
+outlabel=$(cat ${outdir::-1}/retrocall/$uniqueID.output.hqualpositions | head -$i | tail -1);
+samtools view -b $input -o $sample_tempdir/$outlabel $(cat  ${outdir::-1}/retrocall/$uniqueID.output.hqualpositions | head -$i | tail -1);
+done
+
+# this loop converts the bam files to fastq files.
+for file in $sample_tempdir/*;
+do
+samtools bam2fq $file | seqtk seq -A > $file.fa
+done
+
+# this loops converts the fastq files into contig files.
+for file in $sample_tempdir/*.fa;
+do
+formcon $file > $file.con;
+cap3 $file $file.con > $file.log;
+done
+
+# lots of temporary files are created from the above process which we dont need so they are removed.
+rm $sample_tempdir/*.fa
+rm $sample_tempdir/*.con
+rm $sample_tempdir/*.fa.cap.contigs.qual
+rm $sample_tempdir/*.fa.cap.contigs.links
+rm $sample_tempdir/*.fa.cap.info
+rm $sample_tempdir/*.fa.cap.singlets
+rm $sample_tempdir/*.fa.cap.ace
+rm $sample_tempdir/*.results
+rm $sample_tempdir/*.log
+
+# now, for each of the contiguous sequences, repeatmasker is used applied which checks the sequences for repetitive/inserted elements.
+for cfile in $sample_tempdir/*.contigs;
+do
+echo $cfile
+perl /users/k1893288/t_account/brc_scratch/t_scratch/repeatmasker/RepeatMasker/RepeatMasker $cfile -pa 2 -dir $sample_tempdir/repeatmasker
+done
+
+# if we chose to not keep the temporary files (small bams, raw repeatmask output and contigs) then this section of code will delete them, freeing up space.
+if [ $keep_contigs == 'False' ]
+then
+        rm $sample_tempdir/*.contigs
+fi
+
+if [ $keep_extracted_bam == 'False' ]
+then
+        rm $sample_tempdir/*.bam
+fi
+
+if [ $keep_repeatm_output == 'False' ]
+then
+        rm $sample_tempdir/repeatmasker/*.tbl
+        rm $sample_tempdir/repeatmasker/*.masked
+        rm $sample_tempdir/repeatmasker/*.out
+fi
