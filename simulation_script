@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# job name
+#SBATCH --job-name=genome_sim
+
+# How much memory do you need **per core**?
+#SBATCH --mem-per-cpu=60G
+
+# time to run
+#SBATCH --time=0-160:00
+
+# Number of cores you need
+#SBATCH --ntasks=8
+
+# output name
+#SBATCH --output=/scratch/simulated_data/simulation.out
+
+sed -i 's/N/X/g' /scratch/simulated_data/hg19.fa
+bedtools maskfasta -fi /scratch/simulated_data/hg19.fa -bed pisano_masklist.bed -fo /scratch/simulated_data/hg19_pisano_masked.fa
+rm /users/k1893288/t_account/brc_scratch/t_scratch/simulated_data/hg19.fa
+sed -i 's/N//g' /scratch/simulated_data/hg19_pisano_masked.fa
+sed -i 's/X/N/g' hg19_pisano_masked.fa
+picard NormalizeFasta I=hg19_pisano_masked.fa O=hg19_pisano_masked_normalized.fa
+rm hg19_pisano_masked.fa
+bwa index -a bwtsw hg19_pisano_masked_normalized.fa
+
+/scratch/simulated_data/dwgsim/DWGSIM/dwgsim -e 0.020 -E 0.020 -d 400 -s 5 -N 105000000 -1 100 -2 100 -o 1 /scratch/hg19.fa /scratch/simulated_data/0.020_400_5_105000000_100
+
+
+input=0.020_400_5_105000000_100
+gunzip $input.bwa.read1.fastq.gz
+rm $input.bwa.read1.fastq.gz
+gunzip $input.bwa.read2.fastq.gz
+rm $input.bwa.read2.fastq.gz
+bwa mem -M -t 14 hg19_pisano_masked_normalized.fa $input.bwa.read1.fastq $input.bwa.read2.fastq > $input.sam
+rm $input.bwa.read1.fastq
+rm $input.bwa.read2.fastq
+samtools view -S -b $input.sam > $input.bam
+rm $input.sam
+picard SortSam I=$input.bam O=$input.sorted.bam SORT_ORDER=coordinate
+rm $input.bam
+samtools index $input.sorted.bam
