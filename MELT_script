@@ -1,0 +1,16 @@
+#!/bin/bash -l
+#SBATCH --job-name=melt
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --time=6:00:00
+#SBATCH --mem=10G
+#SBATCH -o melt.out
+
+# specify input file
+inputbam=LP6005878-DNA_A05.bam
+
+# run the initial MELT preprocessing step
+java -jar MELT.jar Preprocess -bamfile /users/k1893288/t_account/brc_scratch/t_scratch/melt/MELTv2.2.0/$inputbam -h /users/k1893288/t_account/brc_scratch/t_scratch/hg19.fa
+
+# run MELT for a single genome
+java -jar MELT.jar Single -k -bamfile /users/k1893288/t_account/brc_scratch/t_scratch/melt/MELTv2.2.0/$inputbam -h /users/k1893288/t_account/brc_scratch/t_scratch/hg19.fa -n /users/k1893288/t_account/brc_scratch/t_scratch/melt/MELTv2.2.0/add_bed_files/1KGP_Hg19/hg19.genes.bed -w /users/k1893288/t_account/brc_scratch/t_scratch/long_read_test/melt_short_results/$inputbam/ -t /users/k1893288/t_account/brc_scratch/t_scratch/melt/MELTv2.2.0/LTR5Hszip_MELT.zip
