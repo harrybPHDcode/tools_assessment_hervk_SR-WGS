@@ -4,32 +4,48 @@
 #SBATCH --job-name=steak_script
 
 # How much memory do you need **per core**?
-#SBATCH --mem-per-cpu=90G
+#SBATCH --mem-per-cpu=10G
 
 # time to run
-#SBATCH --time=0-96:00
+#SBATCH --time=0-12:00
 
 # Number of cores you need
-#SBATCH --ntasks=3
+#SBATCH --ntasks=2
 
 # output name
-#SBATCH --output=/users/k1893288/t_account/brc_scratch/t_scratch/steak.out
+#SBATCH --output=/scratch/steak.out
 
 module add utilities/use.dev
 module add apps/steak/20190912-singularity
 
+# specify input file and nix reference file
 input=LP6005878-DNA_A05
 inputnix=/users/k1893288/t_account/brc_scratch/t_scratch/hg19.nix
+
+# convert the input file to SAM and remove bam
 samtools view -h -o $input.sam $input.bam
 rm $input.bam
+
+# sort the sam file by queryname and delte the so-ordinate sorted SAM
 picard SortSam I=$input.sam O=$input.sorted.sam SORT_ORDER=queryname
 rm $input.sam
-novoindex hg19.nix hg19.fa
+
+# if needed, novoindex the hg19 reference file
+#novoindex hg19.nix hg19.fa
+
+# run steak
 steak --input $input.sorted.sam --paired --aligned --TE-reference hervk_LTR5Hs_Dfam_UC.fa
+
+# run steak post processing steps (see steak documentation)
+# novoalign the steak output reads to novoindex reference
 novoalign -d $inputnix -o SAM -o FullNW -f $input.sorted.1.fastq $input.sorted.2.fastq > $input.sorted.detection.sam
+
+# convert sam to bam ad delete sam
 samtools view -S -b $input.sorted.detection.sam > $input.sorted.detection.bam
 rm $input.detection.sam
+
+# convert bam to bed
 bedtools bamtobed -i $input.sorted.detection.bam > $input.sorted.detection.bed
 
-CONFIRM THIS
+# merge the bed file and extract out only the high quality predictions
 bedtools merge -c 4 -o count -d 1000 -i $input.sorted.detection.bed | awk '{if ($4 >=5) print($0);}'- > filtered_novel_ints.bed
