@@ -1,0 +1,66 @@
+# initialise some variables to count short, medium length and long LTR5_Hs alignments.
+long = 0
+mid = 0
+short = 0
+count = 0
+zero = 0
+
+# specify the input path, this will be a directory containing multiple outputs from repeatmasker for a given tool.
+input_path = filtered_ervcaller_path
+
+# loop through each file in the directory.
+for filename in os.listdir(input_path):
+    count = count + 1
+    curr_len = 0                        
+    file = open(input_path + filename)   # open the file and loop through it.
+    for line in file:
+        if len(line.split()) > 10:       # ensure that the line is not empty. 
+            if line.split()[0] != 'bit' and line.split()[0] != 'score':    # check that the current line is not the title line.
+                if line.split()[9] == 'LTR5_Hs':                           # check if the line contains the LTR5_Hs identifier.
+                    if line.split()[8] == '+':                             # find the length of the LTR5_Hs, we need to differentiate between forward and reverse orientation.
+                        len_insert = int(line.split()[12]) - int(line.split()[11])
+                    elif line.split()[8] == 'C':
+                        len_insert = int(line.split()[12]) - int(line.split()[13])
+                    if len_insert > curr_len:     # if the current LTR5_Hs length is longer than any previous LTR5_Hs from this file, update curr_len with this new length.
+                        curr_len = len_insert
+    if curr_len > 850:   # curr_len = the longest LTR5_Hs alignment from this file, fit it into one of the three length categories (or zero if there were no LTR5_Hs). 
+        long += 1
+    if curr_len > 400:
+        mid += 1
+    if curr_len > 0:
+        short += 1
+    if curr_len == 0:
+        zero += 1
+print('LTR5_Hs results:', long/count, mid/count, short/count, zero/count, count)
+
+# the following script is identical to the above except it looks for lines which have any kind of LTR or ERV element, as opposed to jsut LTR5_Hs. 
+long = 0
+mid = 0
+short = 0
+count = 0
+zero = 0
+for filename in os.listdir(input_path):
+    count = count + 1
+    curr_len = 0
+    file = open(input_path + filename)
+    for line in file:
+        if len(line.split()) > 10:
+            if line.split()[0] != 'bit' and line.split()[0] != 'score':
+                if line.split()[10] == 'LTR/ERVK' or line.split()[9] == 'HERVK-int'\
+                or 'LTR5' in line.split()[9] or 'ERV' in line.split()[10]:
+                    if line.split()[8] == '+':
+                        len_insert = int(line.split()[12]) - int(line.split()[11])
+                    elif line.split()[8] == 'C':
+                        len_insert = int(line.split()[12]) - int(line.split()[13])
+                    if len_insert > curr_len:
+                        curr_len = len_insert
+    if curr_len > 850:
+        long += 1
+    if curr_len > 400:
+        mid += 1
+    if curr_len > 0:
+        short += 1
+    if curr_len == 0:
+        zero += 1
+            
+print('genreal ERV results:', long/count, mid/count, short/count, zero/count, count)
