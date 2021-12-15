@@ -1,0 +1,53 @@
+# This script takes in two files containing locations of the known HML6 simulated insertions. It also takes in results from where ervcaller has been applied to the simulated
+# data. This is representative, the same analysis method was applied to all tools with slight modifications for slight differences in output foramt. 
+
+import os
+from collections import defaultdict
+
+# these text files are bed files containing the positions of the simulated HERV insertions. 
+ltr3a = open('LTR3A_insertions_new.txt')
+ltr3b = open('LTR3B_insertions.txt')
+
+# they will need to be loaded into a list to be compared to results given by ervcaller
+list3a = []
+list3b = []
+for i in ltr3a:
+    list3a.append('chr' + i.split()[0] + ':' + i.split()[1] + '-' + i.split()[2])
+for i in ltr3b:
+    list3b.append('chr' + i.split()[0] + ':' + i.split()[1] + '-' + i.split()[2])
+ref_loci = open('LTR3A_ref_loci.txt')
+
+# ref_loci contains LTR3 loci from hg19 reference found using the UCSC RMSK track, this is used to filter out any potential reference LTR3s that were not included in our
+# simulation. This means we are only considering the sensitivity/precision of each tool to detect simulated, non reference insertions. 
+reflist = []
+for line in ref_loci:
+    reflist.append(line.split()[4] + ':' + line.split()[5] + '-' + line.split()[6])
+    
+# we now loop through the ervcaller results and build up a dictionary. Each key corresponds to a simulated genome, the values will correspond to predicted LTR3 loci.
+sim_dict_ervcaller = defaultdict(list)
+
+# loop through the files, open the ervcaller files.
+for filename in os.listdir('~/simulation_results/'):
+    if filename.endswith('_ervcaller.txt'):
+        file = open('C:/Users/harry/Documents/simulation_results/' + filename)
+        for line in file:                                                                   # for each prediction in the file, if it passes the filter, append it to
+            if int(line.split()[7].split(',')[6].split(';')[0]) >= 2:                       # the dictionary. 
+                sim_dict_ervcaller[filename.split('.')[0]+ '.' + filename.split('.')[1]] += [line.split()[0] + ':' + str(int(line.split()[1]) - 200) + '-' + str(int(line.split()[1]) + 200)]
+
+# sim_dict ervcaller now contains the results for each simulated genome.      
+# this next loop will go through each predicted locus and see if it is within 400 bp of a true positive simulated insertion. The number of true positives will be counted.
+for key,value in sim_dict_ervcaller.items():
+    incount = 0
+    inlist = []
+    for j in value:
+        for i in list3a:
+            if i.split(':')[0] == j.split(':')[0]: 
+                if abs(int(i.split(':')[1].split('-')[1]) - int(j.split(':')[1].split('-')[0])) <= 400 or\
+                    abs(int(i.split(':')[1].split('-')[0]) - int(j.split(':')[1].split('-')[1])) <= 400 or\
+                    abs(int(i.split(':')[1].split('-')[1]) - int(j.split(':')[1].split('-')[1])) <= 400 or\
+                    abs(int(i.split(':')[1].split('-')[0]) - int(j.split(':')[1].split('-')[0])) <= 400:
+                    incount = incount + 1
+                    inlist.append(i)
+    print(key)
+    print(len(value))
+    print(len(inlist))
