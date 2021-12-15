@@ -1,0 +1,81 @@
+ervk = open('ervk_loci.txt')
+generv = open('hg19_ERV_LTR_repeats')
+polymorphlist = []
+ervklist = []
+genervlist = []
+known_polymorph_df = pd.read_excel('40_known_loci_configured.xlsx', names = ['chromosome', 'pos start', 'pos end'])
+for index, row in known_polymorph_df.iterrows():
+    polymorphlist.append(str(row[0] + ':' + str(row[1]) + '-' + str(row[2])))
+
+for line in ervk:
+    ervklist.append(str(line.split()[4]) + ':'+ line.split()[5] + '-' + line.split()[6])
+
+for line in generv:
+    genervlist.append(str(line.split()[5]) + ':'+ line.split()[6] + '-' + line.split()[7])
+
+poly_ref_list = []
+poly_non_ref_list = []
+for i in polymorphlist:
+    match = False
+    for j in ervklist:
+         if i.split(':')[0] == j.split(':')[0]:
+                if abs(int(i.split(':')[1].split('-')[0]) - int(j.split(':')[1].split('-')[0])) < 400 or \
+                abs(int(i.split(':')[1].split('-')[1]) - int(j.split(':')[1].split('-')[0])) < 400 or \
+                abs(int(i.split(':')[1].split('-')[0]) - int(j.split(':')[1].split('-')[1])) < 400 or \
+                abs(int(i.split(':')[1].split('-')[1]) - int(j.split(':')[1].split('-')[1])) < 400:
+                    match = True
+    if match == False:
+        poly_non_ref_list.append(i)
+    elif match == True:
+        poly_ref_list.append(i)
+        
+LTR5_Hs_length = 968
+end_cut_off = 470
+conf_count = 0
+unconf_count = 0
+confirmed_list = []
+for dirname in os.listdir(pipeline_results):
+    if dirname.split('.')[0] in m_list:
+        print(dirname)
+        hold_dict = defaultdict(list)
+        for file in os.listdir(pipeline_results + dirname):
+            data = open(pipeline_results + dirname + '/' + file)
+            locus = file.split('\uf03a')[0] + ':' + file.split('\uf03a')[1].split('.')[0]
+            for line in data:
+                if 'LTR5_Hs' in line:
+                    hold_dict[locus].append(line)
+        for key, value in hold_dict.items():
+            print(key)
+            confirmed = False
+            contig_end_list = []
+            contig_start_list = []
+            for i in value:
+                if i.split()[8] == 'C':
+                    start = i.split()[13]
+                    end = i.split()[12]
+                    if abs(LTR5_Hs_length - int(end)) < end_cut_off:
+                        contig_end_list.append(i.split()[4])
+                    if int(start) < end_cut_off:
+                        contig_start_list.append(i.split()[4])
+
+                else:
+                    print(i.split(), '\n')
+                    start = i.split()[11]
+                    end = i.split()[12]
+                    if abs(LTR5_Hs_length - int(end)) < end_cut_off:
+                        contig_end_list.append(i.split()[4])
+                    if int(start) < end_cut_off:
+                        contig_start_list.append(i.split()[4])
+            for j in contig_start_list:
+                if j not in contig_end_list:
+                    confirmed = True
+            for k in contig_start_list:
+                if k not in contig_end_list:
+                    confirmed = True
+            if len(contig_start_list) == 0 or len(contig_end_list) == 0:
+                confirmed = False
+            if confirmed == True:
+                conf_count += 1
+                confirmed_list.append(key)
+            else:
+                unconf_count += 1
