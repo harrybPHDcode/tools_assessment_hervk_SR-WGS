@@ -20,6 +20,6 @@ module load apps/R/3.6.0
 
 # run ervcaller 
 perl /scratch/ervcaller/ERVcaller/ERVcaller_v1.4.pl -i LP6005878-DNA_A05 -f .bam -H hg19.fa -T /scratch/LTR5_Hs_new.fa -BWA_MEM \
--O /scratch/ervcaller/ERVcaller/ -I /scratch/ervcaller/ERVcaller/
+-O /scratch/ervcaller/ERVcaller/ -I /scratch/ervcaller/ERVcaller/ -t 2
 
 # A filtering step is appled during post processing to extract high quality reads as suggested on the ervcaller documentation. 
