@@ -1,0 +1,48 @@
+LTR5_Hs_length = 968
+end_cut_off = 470
+conf_count = 0
+unconf_count = 0
+confirmed_list = []
+for dirname in os.listdir(pipeline_results):
+    hold_dict = defaultdict(list)
+    for file in os.listdir(pipeline_results + dirname):
+        data = open(pipeline_results + dirname + '/' + file)
+        locus = file.split('\uf03a')[0] + ':' + file.split('\uf03a')[1].split('.')[0]
+        for line in data:
+            if 'LTR5_Hs' in line:
+                hold_dict[locus].append(line)
+    for key, value in hold_dict.items():
+        print(key)
+        confirmed = False
+        contig_end_list = []
+        contig_start_list = []
+        for i in value:
+            if i.split()[8] == 'C':
+                start = i.split()[13]
+                end = i.split()[12]
+                if abs(LTR5_Hs_length - int(end)) < end_cut_off:
+                    contig_end_list.append(i.split()[4])
+                if int(start) < end_cut_off:
+                    contig_start_list.append(i.split()[4])
+
+            else:
+                print(i.split(), '\n')
+                start = i.split()[11]
+                end = i.split()[12]
+                if abs(LTR5_Hs_length - int(end)) < end_cut_off:
+                    contig_end_list.append(i.split()[4])
+                if int(start) < end_cut_off:
+                    contig_start_list.append(i.split()[4])
+        for j in contig_start_list:
+            if j not in contig_end_list:
+                confirmed = True
+        for k in contig_start_list:
+            if k not in contig_end_list:
+                confirmed = True
+        if len(contig_start_list) == 0 or len(contig_end_list) == 0:
+            confirmed = False
+        if confirmed == True:
+            conf_count += 1
+            confirmed_list.append(key)
+        else:
+            unconf_count += 1
