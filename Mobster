@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# job name
+#SBATCH --job-name=mobster
+
+# How much memory do you need **per core**?
+#SBATCH --mem-per-cpu=10G
+
+# time to run
+#SBATCH --time=0-6:00
+
+# Number of cores you need
+#SBATCH --ntasks=1
+
+# output name
+#SBATCH --output=~/mobster_results/mobster.out
+
+export MOBPATH=~/mobster_results/resources/mobiome/
+
+# psecify the input bam file
+input=LP6005878-DNA_C07
+
+# run picardtools to find insert size metrics
+picard CollectInsertSizeMetrics \
+I=~/mobster_results/$input.bam \
+O=~/mobster_results/$input_sizemets.txt \
+H=~/mobster_results/$input_inshist.pdf \
+M=0.2
+
+# extract the insert summary stat lengths for use with mobster properties file. 
+mean=$(cat $input_sizemets.txt | head -8 | tail -1 | awk '{print $6}'| awk -F '.' '{print $1}')
+sd=$(cat $input_sizemets.txt | head -8 | tail -1 | awk '{print $7}'| awk -F '.' '{print $1}')
+length_99=$(cat $input_sizemets.txt | head -8 | tail -1 | awk '{print $20}'| awk -F '.' '{print $1}')
+
+echo $mean
+echo $sd
+echo $length_99
+
+# input the summar stats into the properties file to run with mobster
+sed "s/MEAN_FRAGMENT_LENGTH=/MEAN_FRAGMENT_LENGTH=$mean/g" mobster_props.properties > mobster_props_$input_int1.properties
+sed "s/SD_FRAGMENT_LENGTH=/SD_FRAGMENT_LENGTH=$sd/g" mobster_props_$input_int1.properties > mobster_props_$input_int2.properties
+sed "s/LENGTH_99PROCENT_OF_FRAGMENTS=/LENGTH_99PROCENT_OF_FRAGMENTS=$length_99/g" mobster_props_$input_int2.properties > mobster_props_$input.properties
+rm mobster_props_$input_int1.properties
+rm mobster_props_$input_int2.properties
+
+#run mobster using the modified properties file (which is publicly available with mobster) and the input bam. 
+mobster -properties mobster_props_$input.properties -in $input.bam -out ~/mobster_results/$input_newfa -sn $input_newfa_sn
