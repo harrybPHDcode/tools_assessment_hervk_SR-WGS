@@ -23,7 +23,7 @@ score   div. del. ins.  sequence  begin end    (left)   repeat    class/family  
 This bash script contains a single line of code which monitors the size of a given directory over time. Below this line of code should be the script to run a HERV-K detection tool. The directory to be monitored should be the temporary/output directory used by the tool. 
 
 ### comparison previous HERV-K
-This python script takes in results from a given tool and compares the predicted HERV-K locus to the loci given in the three supplementary files. XXX is used as an example but the script can be used for any tools results with very little adaptation (no changes are needed in most cases). 
+This python script takes in results from a given tool and compares the predicted HERV-K locus to the loci given in the three supplementary files. XXX is used as an example but the script can be used for any tools results with very little adaptation (no changes are needed in most cases). The approach is the same in all cases, store the results in a dictionary (key = locus, value = frequency) and merge the keys such that loci very close to each other are grouped as a single HERV-K insertion.
 
 ### ERVcaller, MELT, Retroseq, STEAK, retroseq+, Mobster
 These scripts run each of these five tools on a given input bam (or sam) file. They each require a reference genome (e.g. hg19), an input SR-WGS file and an LTR target fasta which contains the sequence of the target of interest (e.g. the LTR5_Hs sequence from DFAM for the HML-2 detection). The retroseq results are given as an intermediate result from the retroseq+ script. 
