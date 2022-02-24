@@ -28,11 +28,11 @@ This python script takes in results from a given tool and compares the predicted
 ### Ervcaller, MELT, Retroseq, STEAK, retroseq+, Mobster
 These scripts run each of these five tools on a given input bam (or sam) file. They each require a reference genome (e.g. hg19), an input SR-WGS file and an LTR target fasta which contains the sequence of the target of interest (e.g. the LTR5_Hs sequence from DFAM for the HML-2 detection). The retroseq results are given as an intermediate result from the retroseq+ script. Each tool may also have their own specific input files such as a TE database, or Mobster's 'properties' file, all of these extra files can be found 
 at the tools' respective github pages/pubications:
-Ervcaller: https://github.com/xunchen85/ERVcaller 
-MELT: https://melt.igs.umaryland.edu/#:~:text=The%20Mobile%20Element%20Locator%20Tool,genome%20sequencing%20(WGS)%20data
-Retroseq: https://github.com/tk2/RetroSeq
-STEAK:https://github.com/applevir/STEAK
-Mobster: https://jyhehir.github.io/mobster/index.html 
+Ervcaller: https://github.com/xunchen85/ERVcaller  
+MELT: https://melt.igs.umaryland.edu/#:~:text=The%20Mobile%20Element%20Locator%20Tool,genome%20sequencing%20(WGS)%20data  
+Retroseq: https://github.com/tk2/RetroSeq  
+STEAK:https://github.com/applevir/STEAK  
+Mobster: https://jyhehir.github.io/mobster/index.html  
 The tool dependencies, and installation instructions, can be found on their resepctive github pages/publications with the exception of retroseq+. As well as the retroseq dependencies, retroseq+ requires repeatmasker and CAP3. CAP3 was installed via conda, repeatmasker was installed as follows:
 
 1) install HMMER: 
