@@ -12,8 +12,7 @@ The LTR3B and LTR3A files contain the locations in bed format, together they giv
 
 ### Long read analysis
 1) This bash script extracts reads at predicted HERV-K loci from long read WGS data. It then merges the reads into contigs before applying repeatmasker to confirm the presence of target LTR/HERV-K elements at predicted loci. Repeatmasker can be installed following the instructions below.   
-2)  
-This python script takes long read repeatmasker results and searches each locus for LTR5_Hs (or general LTR elements) of certain lengths. The input to this script is a directory containing repeatmasker output for each long read genome from a given tool. An example filename might be 10:110876847-110891982.HG007.melt which contains the following file format (view raw):
+2) This python script takes long read repeatmasker results and searches each locus for LTR5_Hs (or general LTR elements) of certain lengths. The input to this script is a directory containing repeatmasker output for each long read genome from a given tool. An example filename might be 10:110876847-110891982.HG007.melt which contains the following file format (view raw):
 
  bit   perc perc perc  query     position in query     matching  repeat            position in repeat
 score   div. del. ins.  sequence  begin end    (left)   repeat    class/family    begin  end    (left)  ID
