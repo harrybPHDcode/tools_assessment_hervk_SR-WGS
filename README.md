@@ -33,7 +33,7 @@ MELT: https://melt.igs.umaryland.edu/#:~:text=The%20Mobile%20Element%20Locator%2
 Retroseq: https://github.com/tk2/RetroSeq  
 STEAK:https://github.com/applevir/STEAK  
 Mobster: https://jyhehir.github.io/mobster/index.html  
-The tool dependencies, and installation instructions, can be found on their resepctive github pages/publications with the exception of retroseq+. As well as the retroseq dependencies, retroseq+ requires repeatmasker and CAP3. CAP3 was installed via conda, repeatmasker was installed as follows:
+The tool dependencies, and installation instructions, can be found on their resepctive github pages/publications with the exception of retroseq+. As well as the retroseq dependencies, retroseq+ requires repeatmasker and CAP3. CAP3 was installed via conda, repeatmasker (which is also needed for long read analysis) was installed as follows:
 
 1) install HMMER: 
 
@@ -85,7 +85,6 @@ rm RepBaseRepeatMaskerEdition-########.tar
 Finally, Repeatmasker needs to be ‘configured’.  
 Go to the RepeatMasker directory and run the configure executable file: 
 
-module load general/perl/5.22.0 
 Perl ./configure 
 (This will start a configuration progress where you will be asked to specify the locations of hmmer and perl etc.)
 
