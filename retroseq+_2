@@ -11,21 +11,21 @@ for dirname in os.listdir(pipeline_results):                                    
         for line in data:
             if 'LTR5_Hs' in line:                                                         # loop through the file and see if repeatmasker detected any LTR5_Hs elements - store in a dict
                 hold_dict[locus].append(line)
-    for key, value in hold_dict.items():
+    for key, value in hold_dict.items():                                                  # now need to loop through the dict and see if there were seperate contigs with LTR5_Hs sequence from the 5' half or 3' half.
         print(key)
         confirmed = False
         contig_end_list = []
         contig_start_list = []
-        for i in value:
-            if i.split()[8] == 'C':
-                start = i.split()[13]
+        for i in value:                              
+            if i.split()[8] == 'C':                                               # need to seperate sense vs antisense cases. 
+                start = i.split()[13]                                             # find where in the LTR5_Hs sequence the current result sits (5' or 3') and add it to the respective list.
                 end = i.split()[12]
                 if abs(LTR5_Hs_length - int(end)) < end_cut_off:
                     contig_end_list.append(i.split()[4])
                 if int(start) < end_cut_off:
                     contig_start_list.append(i.split()[4])
 
-            else:
+            else:                                                                 # The same as above but for sense cases. 
                 print(i.split(), '\n')
                 start = i.split()[11]
                 end = i.split()[12]
@@ -33,7 +33,7 @@ for dirname in os.listdir(pipeline_results):                                    
                     contig_end_list.append(i.split()[4])
                 if int(start) < end_cut_off:
                     contig_start_list.append(i.split()[4])
-        for j in contig_start_list:
+        for j in contig_start_list:                                               # Now we need to see if there are LTR5_Hs on distinct contigs that correspond to the 5' or 3' end of the LTR5_Hs sequence.
             if j not in contig_end_list:
                 confirmed = True
         for k in contig_start_list:
@@ -43,6 +43,6 @@ for dirname in os.listdir(pipeline_results):                                    
             confirmed = False
         if confirmed == True:
             conf_count += 1
-            confirmed_list.append(key)
+            confirmed_list.append(key)                                           # confirmed loci (5' and 3' in seperate contigs) are stored in the 'confirmed_list). 
         else:
             unconf_count += 1
