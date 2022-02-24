@@ -1,0 +1,18 @@
+result_type=filtered_ervcaller
+
+input=~/long_read_test/HG002_PacBio_GRCh37
+bedinput=~/long_read_test/HG002_filtered_ervcall_formatted.txt
+tempdir~/long_read_test/tempdir_long/$result_type/
+mkdir -p $tempdir
+resultdir=~/long_read_test/results_long/$result_type/
+mkdir -p $tempdir${input##*/}
+#mkdir -p $resultdir
+linecount=$(wc -l $bedinput | awk '{print $1}')
+start=1
+for ((i=$start;  i<=$linecount; i++))
+do
+outlabel=$(cat $bedinput| head -$i | tail -1);
+echo $outlabel
+samtools view -b $input.bam $outlabel > $tempdir${input##*/}/$outlabel.bam
+done
+
