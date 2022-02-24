@@ -26,7 +26,7 @@ This bash script contains a single line of code which monitors the size of a giv
 This python script takes in results from a given tool and compares the predicted HERV-K locus to the loci given in the three supplementary files. XXX is used as an example but the script can be used for any tools results with very little adaptation (no changes are needed in most cases). 
 
 ### ERVcaller, MELT, Retroseq, STEAK, retroseq+, Mobster
-These scripts run each of these five tools on a given input bam (or sam) file. They each require a reference genome (e.g. hg19), an input SR-WGS file and an LTR target fasta which contains the sequence of the target of interest (e.g. the LTR5_Hs sequence from DFAM for the HML-2 detection). 
+These scripts run each of these five tools on a given input bam (or sam) file. They each require a reference genome (e.g. hg19), an input SR-WGS file and an LTR target fasta which contains the sequence of the target of interest (e.g. the LTR5_Hs sequence from DFAM for the HML-2 detection). The retroseq results are given as an intermediate result from the retroseq+ script. 
 
 ### retroseq+ 2
 The output of retroseq+ needs a final preprocessing step. This is acheived by the retroseq+ 2 python script. This script takes in the repeatmasker output from the first step and reads through it to find seperate contigs with LTR5_Hs sequence - this follows the description of the pipeline in Wildschutte et al. 
