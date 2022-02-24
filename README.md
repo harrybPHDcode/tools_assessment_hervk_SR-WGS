@@ -26,7 +26,62 @@ This bash script contains a single line of code which monitors the size of a giv
 This python script takes in results from a given tool and compares the predicted HERV-K locus to the loci given in the three supplementary files. XXX is used as an example but the script can be used for any tools results with very little adaptation (no changes are needed in most cases). The approach is the same in all cases, first, store the results in a dictionary (key = locus, value = frequency) and merge the keys such that loci very close to each other are grouped as a single HERV-K insertion. After merging, each key of the dictionary can be compared to the list of known HERV-K insertions to see if they fall within a few hundred base pairs of the known loci (which counts as a match). 
 
 ### ERVcaller, MELT, Retroseq, STEAK, retroseq+, Mobster
-These scripts run each of these five tools on a given input bam (or sam) file. They each require a reference genome (e.g. hg19), an input SR-WGS file and an LTR target fasta which contains the sequence of the target of interest (e.g. the LTR5_Hs sequence from DFAM for the HML-2 detection). The retroseq results are given as an intermediate result from the retroseq+ script. 
+These scripts run each of these five tools on a given input bam (or sam) file. They each require a reference genome (e.g. hg19), an input SR-WGS file and an LTR target fasta which contains the sequence of the target of interest (e.g. the LTR5_Hs sequence from DFAM for the HML-2 detection). The retroseq results are given as an intermediate result from the retroseq+ script.  
+The tool dependencies, and installation instructions, can be found on their resepctive github pages/publications with the exception of retroseq+. As well as the retroseq dependencies, retroseq+ requires repeatmasker and CAP3. CAP3 was installed via conda, repeatmasker was installed as follows:
+
+1) install HMMER: 
+
+Download hmmer-3.1b2.tar.gz from http://hmmer.org/; unpack it: 
+
+wget ftp://selab.janelia.org/pub/software/hmmer3/3.1b2/hmmer-3.1b2.tar.gz  
+tar xf hmmer-3.1b2.tar.gz 
+cd hmmer-3.1b1  
+
+If you have downloaded a variant ‘with binaries’, the pre-compiled binaries are found in the directory ./binaries. 
+You may copy these into a directory of your choosing, or simply run them from here 
+for example, by adding this directory to your PATH variable. 
+If you have downloaded the HMMER source code, you’ll need to compile the software with configure and make:  
+(it is important that you are in the hmmer directory that contains the configure and make executable files) 
+
+./configure  
+./make  
+./make check  
+
+These instructions are directly copied from http://eddylab.org/software/hmmer3/3.1b2/Userguide.pdf  
+Authors: Sean j Eddy, Travis J wheeler et al. 
+Date that this method was last successfully used: 01/02/2019 
+
+2) install TRF 
+conda install TRF 
+
+3) install Repeatmasker: 
+
+Download a zipped .tar file from http://www.repeatmasker.org/RMDownload.html 
+Copy the file into the desired directory and unpack it using the following commands: 
+
+gunzip RepeatMasker-open-4-#-#.tar.gz 
+
+tar xvf RepeatMasker-open-4-#-#.tar 
+
+Optionally, you can include the repbase library of DNA repeat elements, this requires a repbase account that can take a day to be 
+authorised, obtained from following site: 
+
+https://www.girinst.org/accountservices/register.php 
+
+From girinst.org, download the repeatmasker specific repbase data set e.g.  RepBaseRepeatMaskerEdition-20181026.tar.gz 
+Copy this file into the RepeatMasker directory that was created when you unpacked RepeatMasker in the previous step.  
+Now, unpack the repbase library as before.  
+
+gunzip RepBaseRepeatMaskerEdition-########.tar.gz 
+tar xvf RepBaseRepeatMaskerEdition-########.tar 
+rm RepBaseRepeatMaskerEdition-########.tar 
+
+Finally, Repeatmasker needs to be ‘configured’.  
+Go to the RepeatMasker directory and run the configure executable file: 
+
+module load general/perl/5.22.0 
+Perl ./configure 
+(This will start a configuration progress where you will be asked to specify the locations of hmmer and perl etc.)
 
 ### retroseq+ 2
 The output of retroseq+ needs a final preprocessing step. This is acheived by the retroseq+ 2 python script. This script takes in the repeatmasker output from the first step and reads through it to find seperate contigs with LTR5_Hs sequence - this follows the description of the pipeline in Wildschutte et al. 
