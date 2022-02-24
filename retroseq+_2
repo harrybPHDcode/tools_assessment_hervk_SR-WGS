@@ -1,15 +1,15 @@
-LTR5_Hs_length = 968
-end_cut_off = 470
+LTR5_Hs_length = 968               # the expected length of the full target insertion
+end_cut_off = 470                  # the midpoint of the target insertion length
 conf_count = 0
 unconf_count = 0
 confirmed_list = []
-for dirname in os.listdir(pipeline_results):
+for dirname in os.listdir(pipeline_results):                                        # loop through a directory of directories, where each subdirectory contains retroseq+ (step 1, repeatmasker) results for a single sample  
     hold_dict = defaultdict(list)
-    for file in os.listdir(pipeline_results + dirname):
+    for file in os.listdir(pipeline_results + dirname):                             # each file in the subdirectory corresponds to a repeatmasker file for a given predicted locus.
         data = open(pipeline_results + dirname + '/' + file)
-        locus = file.split('\uf03a')[0] + ':' + file.split('\uf03a')[1].split('.')[0]
+        locus = file.split('\uf03a')[0] + ':' + file.split('\uf03a')[1].split('.')[0]     # extract the locus name
         for line in data:
-            if 'LTR5_Hs' in line:
+            if 'LTR5_Hs' in line:                                                         # loop through the file and see if repeatmasker detected any LTR5_Hs elements - store in a dict
                 hold_dict[locus].append(line)
     for key, value in hold_dict.items():
         print(key)
