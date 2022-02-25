@@ -1,3 +1,5 @@
+# This first section loads the known HERV loci into python. 
+
 ervk = open('ervk_loci.txt')
 generv = open('hg19_ERV_LTR_repeats')
 polymorphlist = []
@@ -13,11 +15,15 @@ for line in ervk:
 for line in generv:
     genervlist.append(str(line.split()[5]) + ':'+ line.split()[6] + '-' + line.split()[7])
 
+# this section goes through the known polymorphic list to see if any of them overlap with known reference HERV-K loci. This gives two lists (ref and non ref). 
+# each locus has this form: chr:start-end. Loci within 400 base pairs are defined as overlapping so if the distances between the starts or ends of two loci are less than 400,
+# they count as an overlap. 
+
 poly_ref_list = []
 poly_non_ref_list = []
 for i in polymorphlist:
     match = False
-    for j in ervklist:
+    for j in ervklist:             
          if i.split(':')[0] == j.split(':')[0]:
                 if abs(int(i.split(':')[1].split('-')[0]) - int(j.split(':')[1].split('-')[0])) < 400 or \
                 abs(int(i.split(':')[1].split('-')[1]) - int(j.split(':')[1].split('-')[0])) < 400 or \
@@ -29,6 +35,109 @@ for i in polymorphlist:
     elif match == True:
         poly_ref_list.append(i)
 
+###############################################################################################################
 
-        
+# This second section loops through a directory containing ervcaller results and builds up a dictionary where the keys are predicted HERV-K loci and the values are frequency.
+dict_ervcaller = defaultdict(int)
+for filename in os.listdir(ervcaller_results):         # loop through results directory.
+    file = open(ervcaller_results + filename)
+    holdlist = []
+    for line in file:                                  # each line in the file corresponds to a predicted herv-k insertion. 
+        inhold = False                                 # every new insertion that is encountered is added to a list, every following insertion can be compared to this list to 
+        if line[0] != '#':                             # make sure any duplicate results are not counted twice for a single person. A duplicate is defined as being within 500 bp
+            if int(line.split()[7].split(',')[6].split(';')[0]) >= 2:                # of another HERV-K. A filter is also applied to remove low quality predictions. 
+                locus = line.split()[0] + ':' + line.split()[1]
+                for item in holdlist:
+                    if item.split(':')[0] == locus.split(':')[0]:
+                        if abs (int(item.split(':')[1]) - int(locus.split(':')[1])) < 500:
+                            inhold = True
+                if inhold == False:
+                    holdlist.append(locus)
+                    dict_ervcaller[locus] += 1
+                    
+merged_dict_ervcaller = defaultdict(int)                     # after each individual file has been loaded into a dictionary, the keys are merged so that overlapping loci
+for key,value in dict_ervcaller.items():                     # are grouped together and their frequency can be properly assessed. (This method gave expected frequency 
+    indict = False                                           # results for a small number of HERV-Ks with known population frequencies in a previous analysis, though these
+    for k,v in merged_dict_ervcaller.items():                # results were not reported). 
+        if key.split(':')[0] == k.split(':')[0]:
+            if abs(int(key.split(':')[1]) - int(k.split(':')[1])) < 700:
+                indict = True
+                match = k
+    if indict == True:
+        merged_dict_ervcaller[match] += value
+    else:
+        merged_dict_ervcaller[key] += value
+ sorted_count_dict = {k: v for k, v in sorted(merged_dict_ervcaller.items(), key=lambda item: item[1])}       
+#######################################################################################        
+
+# This final step compares the  loci stored in the keys of the merged ervcaller dict to the list of known HERVs loaded up in the first step. 
+ervk_index = []
+ervk_total = 0
+count = 0
+for key,value in sorted_count_dict.items():            # The ervcaller dictionary of HERV-K insertions and assocaited frequencies is looped and each locus is compared to each
+    done = False                                       # list of known HERV-K loci. A match is defined as the loci being on the same chromosome within 500bp of each other. 
+    for locus in ervklist:
+        if locus.split(':')[0] == key.split(':')[0]: 
+            try:
+                if abs(int(locus.split(':')[1].split('-')[1]) - int(key.split(':')[1])) <= 500 or\
+                    abs(int(locus.split(':')[1].split('-')[1]) - int(key.split(':')[1])) <= 500:
+                        ervk_index.append(count) 
+                        if done == False:
+                            ervk_total += value
+                            done = True
+            except:
+                continue
+    count = count + 1
+generv_index = []
+generv_total = 0
+count = 0
+for key,value in sorted_count_dict.items():
+    done = False
+    for locus in genervlist:
+        if locus.split(':')[0] == key.split(':')[0]: 
+            try:
+                if abs(int(locus.split(':')[1].split('-')[1]) - int(key.split(':')[1])) <= 500 or\
+                    abs(int(locus.split(':')[1].split('-')[0]) - int(key.split(':')[1])) <= 500:
+                        generv_index.append(count) 
+                        if done == False:
+                            generv_total += value
+                            done = True
+            except:
+                continue
+    count = count + 1
+nr_polymorph_index = []
+nr_total = 0
+count = 0
+for key,value in sorted_count_dict.items():
+    done = False
+    for locus in poly_non_ref_list:
+        try:
+            if locus.split(':')[0] == key.split(':')[0]: 
+                if abs(int(locus.split(':')[1].split('-')[1]) - int(key.split(':')[1])) <= 500 or\
+                    abs(int(locus.split(':')[1].split('-')[0]) - int(key.split(':')[1])) <= 500:
+                        nr_polymorph_index.append(count)
+                        if done == False:
+                            nr_total += value
+                            done = True
+        except:
+            continue
+    count = count + 1
+
+r_polymorph_index = []
+count = 0
+r_total = 0
+for key,value in sorted_count_dict.items():
+    done = False
+    for locus in poly_ref_list:
+        try:
+            if locus.split(':')[0] == key.split(':')[0]: 
+                if abs(int(locus.split(':')[1].split('-')[1]) - int(key.split(':')[1])) <= 500 or\
+                    abs(int(locus.split(':')[1].split('-')[0]) - int(key.split(':')[1])) <= 500:
+                        r_polymorph_index.append(count) 
+                        if done == False:
+                            r_total += value
+                            done = True
+        except:
+            continue
+    count = count + 1
 
