@@ -90,4 +90,4 @@ Perl ./configure
 (This will start a configuration progress where you will be asked to specify the locations of hmmer and perl etc.)
 
 ### retroseq+ 2
-The output of retroseq+ needs a final preprocessing step. This is acheived by the retroseq+ 2 python script. This script takes in the repeatmasker output from the first step and reads through it to find seperate contigs with LTR5_Hs sequence - this follows the description of the pipeline in Wildschutte et al. 
+The output of retroseq+ needs a final post-processing step. This is acheived by the retroseq+ 2 python script. This script takes in the repeatmasker output from the first step and reads through it to find seperate contigs with LTR5_Hs sequence - this follows the description of the pipeline in Wildschutte et al. 
