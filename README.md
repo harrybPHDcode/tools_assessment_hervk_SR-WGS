@@ -91,3 +91,6 @@ Perl ./configure
 
 ### retroseq+ 2
 The output of retroseq+ needs a final post-processing step. This is acheived by the retroseq+ 2 python script. This script takes in the repeatmasker output from the first step and reads through it to find seperate contigs with LTR5_Hs sequence - this follows the description of the pipeline in Wildschutte et al. 
+
+### confirmed_HERV-Ks_freq
+This file contains the loctions of HERV-Ks predicted by both ERVcaller and the Retroseq+ pipelines. Each has a frequency which is an average of frequencies given by each tool. 
