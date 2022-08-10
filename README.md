@@ -6,9 +6,10 @@ This repo contains all of the code and supplementary data used for the paper: An
 The supplementary files contain HERV loci used for comparison against results given by each of the tools when applied to 50 SR-WGS samples. Supplementary file 1 = 40 polymorphic HERV-Ks, Supplementary file 2 = UCSC Repeatmasker HERV-KS, Supplementary file 3 = UCSC Repeatmasker all ERV/LTR elements. Supplementary table 1 = HERV-K frequencies given by each tool. 
 
 ### Simulation
-The simulation file contains the bash script for generating simulated genome data with 19 known, non-reference HERV-K (HML-6) insertions. This script requires a hg19 reference genome and a bed file containing locations of known HERV-K integration sites. 
+The simulation_script file contains the bash script for generating simulated genome data with 19 known, non-reference HERV-K (HML-6) insertions. This script requires a hg19 reference genome and a bed file containing locations of known HERV-K integration sites. 
 It might be possible to use the hg38 reference if the HERV-K loci are lifted over to hg38. 
 The LTR3B and LTR3A files contain the locations in bed format, together they give the total HML-6 loci file.
+The simulated_results_analysis is a Python script that checks the results of given tool (applied to the simulated data) against the known HERV-K locations allowing computation of sensitivity and specificity.
 
 ### Long read analysis
 1) This bash script extracts reads at predicted HERV-K loci from long read WGS data. It then merges the reads into contigs before applying repeatmasker to confirm the presence of target LTR/HERV-K elements at predicted loci. Repeatmasker can be installed following the instructions below.   
