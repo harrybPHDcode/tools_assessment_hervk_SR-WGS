@@ -3,7 +3,7 @@
 This repo contains all of the code and supplementary data used for the paper: An assessment of bioinformatics tools for the detection of human endogenous retroviral insertions in short-read genome sequencing data. 
 
 ### Supplementary
-The supplementary files contain HERV loci used for comparison against results given by each of the tools when applied to 50 SR-WGS samples. S1 = 40 polymorphic HERV-Ks, S2 = UCSC Repeatmasker HERV-KS, S3 = UCSC Repeatmasker all ERV/LTR elements.
+The supplementary files contain HERV loci used for comparison against results given by each of the tools when applied to 50 SR-WGS samples. Supplementary file 1 = 40 polymorphic HERV-Ks, Supplementary file 2 = UCSC Repeatmasker HERV-KS, Supplementary file 3 = UCSC Repeatmasker all ERV/LTR elements. Supplementary table 1 = HERV-K frequencies given by each tool. 
 
 ### Simulation
 The simulation file contains the bash script for generating simulated genome data with 19 known, non-reference HERV-K (HML-6) insertions. This script requires a hg19 reference genome and a bed file containing locations of known HERV-K integration sites. 
