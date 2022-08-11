@@ -21,8 +21,8 @@ For each tool, this table shows the frequencies of each HERV-K found in a sample
 ### Simulation
 The simulation_script file contains the bash script for generating simulated genome data with 19 known, non-reference HERV-K (HML-6) insertions. This script requires a hg19 reference genome and a bed file containing locations of known HERV-K integration sites. 
 It might be possible to use the hg38 reference if the HERV-K loci are lifted over to hg38. 
-The ####LTR3B_insertions and ####LTR3A_insertions_new files contain the locations in bed format, together they give the total HML-6 loci file.
-The simulated_results_analysis is a Python script that checks the results of given tool (applied to the simulated data) against the known HERV-K locations allowing computation of sensitivity and specificity.
+The LTR3B_insertions and LTR3A_insertions_new files contain the locations in bed format, together they give the total HML-6 loci file.
+The simulated_results_analysis file is a Python script that checks the results of given tool (applied to the simulated data) against the known HERV-K locations allowing computation of sensitivity and specificity.
 
 ### Long read analysis_1 
 This bash script extracts reads at predicted HERV-K loci from long read WGS data. It then merges the reads into contigs before applying repeatmasker to confirm the presence of target LTR/HERV-K elements at predicted loci. Repeatmasker can be installed following the instructions below.   
