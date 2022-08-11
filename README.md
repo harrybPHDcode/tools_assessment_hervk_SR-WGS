@@ -3,7 +3,8 @@
 This repo contains all of the code and supplementary data used for the paper: An assessment of bioinformatics tools for the detection of human endogenous retroviral insertions in short-read genome sequencing data. 
 
 ### supplementary file 1
-This file contains 
+This file contains 40 polymorphic HERV-K loci from Kahyo et al. https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-017-3872-6#Sec13 
+Kahyo, T., Yamada, H., Tao, H., Kurabe, N. and Sugimura, H., 2017. Insertionally polymorphic sites of human endogenous retrovirus-K (HML-2) with long target site duplications. BMC genomics, 18(1), pp.1-8.
 
 ### supplementary file 2
 This file contains reference HERV-K loci obtained from the UCSC table browser (repeatmasker track, hg19 reference). The filter terms used were: LTR5_Hs, LTR5A, LTR5B, HERV-K and HERV-K-int.
@@ -12,8 +13,10 @@ This file contains reference HERV-K loci obtained from the UCSC table browser (r
 This file contains transposable element loci (all subfamilies) which are known to contain an LTR, this was obtained using the UCSC table browser (repeatmasker track, hg19). The filter terms used were: ERV, LTR. 
 
 ### supplementary table 1
-This table reports the genomic loci of the HERV-Ks detected by each tool. We report the frequency of exonic and intronic HERV-K integrations as well as the proportion of HERV-Ks located 10
-The supplementary files contain HERV loci used for comparison against results given by each of the tools when applied to 50 SR-WGS samples. Supplementary file 1 = 40 polymorphic HERV-Ks, Supplementary file 2 = UCSC Repeatmasker HERV-KS, Supplementary file 3 = UCSC Repeatmasker all ERV/LTR elements. Supplementary table 1 = HERV-K frequencies given by each tool. 
+This table reports the genomic loci of the HERV-Ks detected by each tool. We report the frequency of exonic and intronic HERV-K integrations as well as the proportion of HERV-Ks located 10kb upstream of a gene. 
+
+### supplementary_table_2
+For each tool, this table shows the frequencies of each HERV-K found in a sample of 50 short read whole genome sequences.
 
 ### Simulation
 The simulation_script file contains the bash script for generating simulated genome data with 19 known, non-reference HERV-K (HML-6) insertions. This script requires a hg19 reference genome and a bed file containing locations of known HERV-K integration sites. 
@@ -102,6 +105,3 @@ Perl ./configure
 
 ### retroseq+ 2
 The output of retroseq+ needs a final post-processing step. This is acheived by the retroseq+ 2 python script. This script takes in the repeatmasker output from the first step and reads through it to find seperate contigs with LTR5_Hs sequence - this follows the description of the pipeline in Wildschutte et al. 
-
-### supplementary_table_2
-For each tool, this table shows the frequencies of each HERV-K found in a sample of 50 short read whole genome sequences.
