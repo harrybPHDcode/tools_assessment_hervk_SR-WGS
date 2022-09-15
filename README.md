@@ -12,7 +12,7 @@ This file contains reference HERV-K loci obtained from the UCSC table browser (r
 ### supplementary file 3
 This file contains transposable element loci (all subfamilies) which are known to contain an LTR, this was obtained using the UCSC table browser (repeatmasker track, hg19). The filter terms used were: ERV, LTR. 
 
-### supplementary table 1
+### supplementary_table_1
 This table reports the genomic loci of the HERV-Ks detected by each tool. We report the frequency of exonic and intronic HERV-K integrations as well as the proportion of HERV-Ks located 10kb upstream of a gene. 
 
 ### supplementary_table_2
