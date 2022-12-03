@@ -18,6 +18,12 @@ This table reports the genomic loci of the HERV-Ks detected by each tool. We rep
 ### supplementary_table_2
 For each tool, this table shows the frequencies of each HERV-K found in a sample of 50 short read whole genome sequences.
 
+### supplmentary_table_3
+This table contains aggregated results for each of the tested tools accross all benchmarking experiments.
+
+### supplementary_table_4
+This table contains additional results for the long read benchmarking test. We have measured the number of predicted loci (predicted in short read data) that are positive for internal HERV-K regions and SVA insertions (in the associated long read data). 
+
 ### Simulation
 The simulation_script file contains the bash script for generating simulated genome data with 19 known, non-reference HERV-K (HML-6) insertions. This script requires a hg19 reference genome and a bed file containing locations of known HERV-K integration sites. 
 It might be possible to use the hg38 reference if the HERV-K loci are lifted over to hg38. 
